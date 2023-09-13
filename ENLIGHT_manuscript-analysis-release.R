@@ -11,8 +11,8 @@ library(cowplot)
 
 #ROUND 1----
 #Load the data
-fileName = 'Round1/data/results-for-enlight-conse-2023-03-16-0639.xlsx'
-d = read_excel(fileName)
+fileName <- 'Round1/data/results-for-enlight-conse-2023-03-16-0639.xlsx'
+d <- read_excel(fileName)
 
 # Number of subjects
 NSubjects = length(d$`Unique Response Number`)
@@ -185,6 +185,10 @@ sum(df_res$rating_incl >= 0.75) #24 items rated as definitely included / essenti
 sum(df_res$rating_incl < 0.75) #37 items did not reach inclusion threshold
 
 sum(df_res$rating_excl >= 0.75) #0 items rated as definitely excluded
+
+#Q reviewer: How many more items would have been included (in any of the rounds, but particularly in Round 1) if this threshold had been lowered?
+sum(df_res$rating_incl >= 0.5) #42 items rated as definitely included / essential using a 50% threshold
+sum(df_res$rating_incl < 0.5) #19 items did not reach inclusion threshold and would have been retained for discussion
 
 #range of participants rating as excluded 
 min(df_res$rating_excl[df_res$rating_incl < 0.75]) #8%
@@ -405,7 +409,14 @@ dat_rating_summary <- gather(dat_rating)
 dat_rating_summary$value <- factor(dat_rating_summary$value)
 dat_rating_summary$key <- substr(dat_rating_summary$key, 5, 100)
 
+#change name of guidelines to E&E
+dat_rating_summary <- dat_rating_summary %>% 
+  mutate(key = case_when(key =="How satisfied are you with the ENLIGHT guidelines?" ~ "How satisfied are you with the ENLIGHT E&E document?",
+                         TRUE ~ key))
+
 dat_rating_summary %>% na.omit() %>% count(key)
+
+
 
 ##FIGURE 3: Round 4 - satisfaction of participants with ENLIGHT-----
 ggplot((dat_rating_summary), aes(fill=factor(value, levels=rev(c("Very dissatisfied", "Dissatisfied", "Unsure", "Satisfied", "Very satisfied"))), x=key)) + 
@@ -420,7 +431,7 @@ ggplot((dat_rating_summary), aes(fill=factor(value, levels=rev(c("Very dissatisf
          legend.margin = margin(t = 0, r = 0, b = 0, l = -7, unit = "cm"), axis.title.y=element_blank(), legend.position = "bottom", axis.ticks=element_line(color="black"),
          legend.title=element_blank()) + 
   xlab("") + 
-  ylab("Percentage of responders [%]") + 
+  ylab("Percentage of respondents [%]") + 
   guides(fill=guide_legend(nrow=1,byrow=TRUE))+
   ggtitle(paste0("Participant rating of ENLIGHT process and outcomes (n = ", nSubjectsR4,")"))
 
